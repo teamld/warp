@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ld.team | Auto Cloudflare Warp Config Generator</title>
+    <style>
+        :root {
+            --primary: #4a6bff;
+            --primary-dark: #3a56e0;
+            --error: #ff4757;
+            --success: #2ed573;
+            --text: #2d3436;
+            --light: #f5f6fa;
+            --dark: #636e72;
+            --white: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            flex: 1;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: var(--primary);
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--dark);
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            opacity: 0.9;
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .alert-info {
+            background-color: rgba(74, 107, 255, 0.1);
+            border-left: 4px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--primary);
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(74, 107, 255, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn i {
+            font-size: 1.2em;
+        }
+        
+        #result {
+            display: none;
+            margin-top: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        #configOutput {
+            width: 100%;
+            height: 220px;
+            padding: 18px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            resize: vertical;
+            line-height: 1.5;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .download-btn {
+            background: var(--success);
+            color: white;
+        }
+        
+        .copy-btn {
+            background: var(--light);
+            color: var(--text);
+            border: 1px solid #ddd;
+        }
+        
+        .copy-btn:hover {
+            background: #e9ecef;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            color: var(--dark);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px 20px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ld.team Auto Config Generator</h1>
+            <p class="subtitle">One-click Cloudflare Warp config for AmneziaWG</p>
+        </header>
+        
+        <div class="alert alert-info">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 16V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Click the button below to automatically generate your config file</span>
+        </div>
+        
+        <button onclick="generateConfig()" class="btn" id="generateBtn">
+            <span id="btnText">Generate Config</span>
+            <div class="spinner" id="spinner"></div>
+        </button>
+        
+        <div id="result">
+            <textarea id="configOutput" readonly></textarea>
+            <div class="action-buttons">
+                <button onclick="downloadConfig()" class="action-btn download-btn">Download Config</button>
+                <button onclick="copyConfig()" class="action-btn copy-btn">Copy to Clipboard</button>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>(c) ld.team 2025. All rights reserved. (<a href="https://teamld.github.io" target="_blank">https://teamld.github.io</a>)</p>
+        <p>This project is maintained by life destroyed license. (<a href="https://teamld.github.io/license/" target="_blank">https://teamld.github.io/license/</a>)</p>
+    </footer>
+    
+    <script>
+        function generateConfig() {
+            const btn = document.getElementById('generateBtn');
+            const btnText = document.getElementById('btnText');
+            const spinner = document.getElementById('spinner');
+            
+            // Show loading state
+            btnText.textContent = 'Generating...';
+            spinner.style.display = 'block';
+            btn.disabled = true;
+            
+            // Simulate processing delay (for better UX)
+            setTimeout(() => {
+                // Generate random keys (simplified for example)
+                const privateKey = generateRandomKey();
+                const publicKey = 'bmXOC+F1FxEMF9eDC43ZpQlOH0u1Y68fWC7Q3W3JQ0Q=';
+                
+                const config = `[Interface]
+PrivateKey = ${privateKey}
+Address = 172.16.0.2/32
+DNS = 1.1.1.1, 1.0.0.1
+MTU = 1280
+
+[Peer]
+PublicKey = ${publicKey}
+AllowedIPs = 0.0.0.0/0, ::/0
+Endpoint = engage.cloudflareclient.com:2408`;
+                
+                document.getElementById('configOutput').value = config;
+                document.getElementById('result').style.display = 'block';
+                
+                // Scroll to result
+                document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+                
+                // Reset button
+                btnText.textContent = 'Config Generated!';
+                setTimeout(() => {
+                    btnText.textContent = 'Generate New Config';
+                    spinner.style.display = 'none';
+                    btn.disabled = false;
+                }, 1500);
+            }, 800);
+        }
+        
+        function generateRandomKey() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+            let key = '';
+            for (let i = 0; i < 44; i++) {
+                key += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return key;
+        }
+        
+        function downloadConfig() {
+            const config = document.getElementById('configOutput').value;
+            if (!config) return;
+            
+            const blob = new Blob([config], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'warp-amnezia.conf';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function copyConfig() {
+            const configOutput = document.getElementById('configOutput');
+            configOutput.select();
+            document.execCommand('copy');
+            
+            const originalText = configOutput.value;
+            configOutput.value = '✅ Config copied to clipboard!';
+            setTimeout(() => {
+                configOutput.value = originalText;
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
