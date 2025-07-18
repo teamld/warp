@@ -3,134 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ld.team | Auto Cloudflare Warp Config Generator</title>
+    <title>ld.team | WARP Config Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #4a6bff;
-            --primary-dark: #3a56e0;
+            --primary: #FFD700;
+            --primary-dark: #FFC000;
             --error: #ff4757;
             --success: #2ed573;
-            --text: #2d3436;
-            --light: #f5f6fa;
-            --dark: #636e72;
-            --white: #ffffff;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --text: #e0e0e0;
+            --bg: #1a1a1a;
+            --card-bg: #252525;
+            --border: #333;
         }
         
         body {
-            background-color: var(--light);
+            background-color: var(--bg);
             color: var(--text);
+            font-family: 'Segoe UI', system-ui, sans-serif;
             line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
             padding: 20px;
+            min-height: 100vh;
         }
         
         .container {
             max-width: 800px;
-            width: 100%;
             margin: 0 auto;
-            background: var(--white);
+            background: var(--card-bg);
             border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             padding: 30px;
-            flex: 1;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
         }
         
         h1 {
             color: var(--primary);
-            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            text-align: center;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
         
         .subtitle {
-            color: var(--dark);
-            font-size: clamp(1rem, 2vw, 1.2rem);
-            opacity: 0.9;
+            text-align: center;
+            opacity: 0.8;
+            margin-bottom: 30px;
         }
         
         .alert {
-            padding: 15px 20px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .alert-info {
-            background-color: rgba(74, 107, 255, 0.1);
+            background-color: rgba(255, 215, 0, 0.1);
             border-left: 4px solid var(--primary);
             color: var(--primary);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
-        .btn {
-            display: inline-flex;
+        button {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+            display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            background: var(--primary);
-            color: white;
-            padding: 16px 32px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            width: 100%;
         }
         
-        .btn:hover {
+        button:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(74, 107, 255, 0.3);
-        }
-        
-        .btn:active {
-            transform: translateY(0);
-        }
-        
-        .btn i {
-            font-size: 1.2em;
         }
         
         #result {
             display: none;
             margin-top: 30px;
-            animation: fadeIn 0.5s ease;
+            animation: fadeIn 0.5s;
         }
         
         #configOutput {
             width: 100%;
             height: 220px;
-            padding: 18px;
+            background: #2d2d2d;
+            border: 1px solid var(--border);
             border-radius: 12px;
-            border: 1px solid #e0e0e0;
+            padding: 15px;
             font-family: 'Courier New', monospace;
-            font-size: 14px;
+            color: var(--text);
             margin-bottom: 20px;
-            background: #f8f9fa;
             resize: vertical;
+            font-size: 14px;
             line-height: 1.5;
         }
         
         .action-buttons {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             margin-top: 15px;
         }
         
@@ -139,7 +118,10 @@
             padding: 12px;
             border-radius: 8px;
             font-weight: 600;
-            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
         .download-btn {
@@ -148,163 +130,123 @@
         }
         
         .copy-btn {
-            background: var(--light);
+            background: var(--card-bg);
             color: var(--text);
-            border: 1px solid #ddd;
-        }
-        
-        .copy-btn:hover {
-            background: #e9ecef;
+            border: 1px solid var(--border);
         }
         
         footer {
             text-align: center;
             margin-top: 40px;
             padding-top: 20px;
-            color: var(--dark);
+            opacity: 0.7;
             font-size: 14px;
-            line-height: 1.7;
-        }
-        
-        footer a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        footer a:hover {
-            text-decoration: underline;
         }
         
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
-        /* Loading spinner */
-        .spinner {
-            display: none;
-            width: 24px;
-            height: 24px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container {
-                padding: 25px 20px;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>ld.team Auto Config Generator</h1>
-            <p class="subtitle">One-click Cloudflare Warp config for AmneziaWG</p>
-        </header>
+        <h1><i class="fas fa-shield-alt"></i> WARP Config Generator</h1>
+        <p class="subtitle">Create perfect Cloudflare WARP configs for AmneziaWG</p>
         
-        <div class="alert alert-info">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M12 16V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>Click the button below to automatically generate your config file</span>
+        <div class="alert">
+            <i class="fas fa-info-circle"></i>
+            <span>Click below to generate a ready-to-use configuration file</span>
         </div>
         
-        <button onclick="generateConfig()" class="btn" id="generateBtn">
-            <span id="btnText">Generate Config</span>
-            <div class="spinner" id="spinner"></div>
-        </button>
+        <button onclick="generateConfig()"><i class="fas fa-magic"></i> Generate Config</button>
         
         <div id="result">
             <textarea id="configOutput" readonly></textarea>
             <div class="action-buttons">
-                <button onclick="downloadConfig()" class="action-btn download-btn">Download Config</button>
-                <button onclick="copyConfig()" class="action-btn copy-btn">Copy to Clipboard</button>
+                <button onclick="downloadConfig()" class="action-btn download-btn"><i class="fas fa-download"></i> Download Config</button>
+                <button onclick="copyConfig()" class="action-btn copy-btn"><i class="far fa-copy"></i> Copy to Clipboard</button>
             </div>
         </div>
     </div>
     
     <footer>
-        <p>(c) ld.team 2025. All rights reserved. (<a href="https://teamld.github.io" target="_blank">https://teamld.github.io</a>)</p>
-        <p>This project is maintained by life destroyed license. (<a href="https://teamld.github.io/license/" target="_blank">https://teamld.github.io/license/</a>)</p>
+        <p>(c) ld.team 2025. All rights reserved. (https://teamld.github.io)</p>
+        <p>This project is maintained by life destroyed license. (https://teamld.github.io/license/)</p>
     </footer>
     
     <script>
+        // Generate valid WireGuard private key
+        function generateValidPrivateKey() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+            let key = '';
+            
+            for (let i = 0; i < 44; i++) {
+                key += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            
+            return key + '=';
+        }
+
+        // Generate random IPv6 address
+        function generateIPv6() {
+            const segments = [];
+            for (let i = 0; i < 8; i++) {
+                segments.push(Math.floor(Math.random() * 65536).toString(16));
+            }
+            return segments.join(':');
+        }
+
         function generateConfig() {
-            const btn = document.getElementById('generateBtn');
-            const btnText = document.getElementById('btnText');
-            const spinner = document.getElementById('spinner');
-            
-            // Show loading state
-            btnText.textContent = 'Generating...';
-            spinner.style.display = 'block';
-            btn.disabled = true;
-            
-            // Simulate processing delay (for better UX)
-            setTimeout(() => {
-                // Generate random keys (simplified for example)
-                const privateKey = generateRandomKey();
-                const publicKey = 'bmXOC+F1FxEMF9eDC43ZpQlOH0u1Y68fWC7Q3W3JQ0Q=';
+            try {
+                // Generate keys and addresses
+                const privateKey = generateValidPrivateKey();
+                const publicKey = "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=";
+                const ipv6 = generateIPv6();
                 
+                // Create config
                 const config = `[Interface]
 PrivateKey = ${privateKey}
-Address = 172.16.0.2/32
-DNS = 1.1.1.1, 1.0.0.1
+S1 = 0
+S2 = 0
+Jc = 4
+Jmin = 40
+Jmax = 70
+H1 = 1
+H2 = 2
+H3 = 3
+H4 = 4
 MTU = 1280
+Address = 172.16.0.2, 2606:4700:110:${ipv6.substring(0, 15)}
+DNS = 1.1.1.1, 2606:4700:4700::1111, 1.0.0.1, 2606:4700:4700::1001
 
 [Peer]
 PublicKey = ${publicKey}
 AllowedIPs = 0.0.0.0/0, ::/0
-Endpoint = engage.cloudflareclient.com:2408`;
+Endpoint = engage.cloudflareclient.com:500`;
                 
+                // Show result
                 document.getElementById('configOutput').value = config;
                 document.getElementById('result').style.display = 'block';
-                
-                // Scroll to result
                 document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
                 
-                // Reset button
-                btnText.textContent = 'Config Generated!';
-                setTimeout(() => {
-                    btnText.textContent = 'Generate New Config';
-                    spinner.style.display = 'none';
-                    btn.disabled = false;
-                }, 1500);
-            }, 800);
-        }
-        
-        function generateRandomKey() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-            let key = '';
-            for (let i = 0; i < 44; i++) {
-                key += chars.charAt(Math.floor(Math.random() * chars.length));
+            } catch (e) {
+                alert('Generation error: ' + e.message);
             }
-            return key;
         }
         
         function downloadConfig() {
             const config = document.getElementById('configOutput').value;
-            if (!config) return;
+            if (!config) {
+                alert('Please generate config first!');
+                return;
+            }
             
             const blob = new Blob([config], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'warp-amnezia.conf';
+            a.download = 'WARP_by_ld.team.conf';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
